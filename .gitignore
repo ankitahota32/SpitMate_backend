@@ -4,4 +4,4 @@ node_modules
 dist/
 /src/generated/prisma
 *.log
-
+skills-lock.json
