@@ -68,3 +68,8 @@ export async function rotateRefreshToken(
     return { userId: record.userId, newRawToken }; 
     
 }
+
+export async function revokeRefreshToken(rawToken: string): Promise<void> {
+    const tokenHash = hashToken(rawToken);
+    await prisma.refreshToken.updateMany({ where: { tokenHash }, data: {revoked: true} })
+}

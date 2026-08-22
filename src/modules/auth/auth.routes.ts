@@ -2,11 +2,12 @@ import { Router } from "express";
 import { prisma } from "../../lib/prisma";
 import { HttpError } from "../../middleware/errorHandler";
 import { requireAuth, AuthedRequest } from "../../middleware/auth";
-import { loginSchema, signupSchema } from "./auth.service";
+import { loginSchema, signupSchema } from "./auth.schema";
 import {
   comparePassword,
   hashPassword,
   issueRefreshToken,
+  revokeRefreshToken,
   rotateRefreshToken,
   signAccessToken,
 } from "./auth.service";
@@ -87,3 +88,10 @@ authRouter.get("/me", requireAuth, async (req: AuthedRequest, res) => {
   if (!user) throw new HttpError(401, "User not found");
   res.json({ user: { id: user.id, name: user.name, email: user.email } });
 });
+
+authRouter.post("/logout", async (req, res) => {
+  const raw = req.cookies?.[REFRESH_COOKIE];
+  if (raw) await revokeRefreshToken(raw);
+  res.clearCookie(REFRESH_COOKIE, { path: "/api/auth" });
+  res.status(204).send();
+})
