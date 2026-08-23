@@ -14,12 +14,15 @@ datasource db {
 }
 
 model User {
-  id           String         @id @default(uuid())
+  id           String   @id @default(uuid())
   name         String
-  email        String         @unique
+  email        String   @unique
   passwordHash String
-  createdAt    DateTime       @default(now())
-  refreshTokens RefreshToken[] 
+  createdAt    DateTime @default(now())
+  refreshTokens RefreshToken[]
+
+  ownedGroups Group[]      @relation("GroupOwner")
+  memberships Membership[]
 }
 
 model RefreshToken {
@@ -32,4 +35,33 @@ model RefreshToken {
   createdAt DateTime @default(now())
 
   @@index([userId])
+}
+
+enum MemberRole {
+  OWNER
+  MEMBER
+}
+
+model Group {
+  id        String   @id @default(uuid())
+  name      String
+  ownerId   String
+  owner     User     @relation("GroupOwner", fields: [ownerId], references: [id])
+  createdAt DateTime @default(now())
+
+  memberships Membership[]
+}
+
+model Membership {
+  id       String     @id @default(uuid())
+  userId   String
+  groupId  String
+  role     MemberRole @default(MEMBER)
+  joinedAt DateTime   @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+  @@index([groupId])
 }
