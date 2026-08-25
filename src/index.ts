@@ -3,7 +3,8 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { env } from "./config/env";
 import { errorHandler } from "./middleware/errorHandler";
-import {authRouter} from "./modules/auth/auth.routes";
+import { authRouter } from "./modules/auth/auth.routes";
+import {groupsRouter} from "./modules/groups/groups.routes"
 
 const app = express();
 const port = env.port;
@@ -16,6 +17,8 @@ app.get("/api/health", (req, res) => {
     res.json({ ok: true });
 });
 app.use("/api/auth", authRouter);
+
+app.use("/api/groups", groupsRouter);
 
 app.use(errorHandler);
 
